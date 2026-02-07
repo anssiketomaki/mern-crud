@@ -1,0 +1,11 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app/react-src
+
+COPY react-src/package.json /usr/src/app/
+RUN npm install
+
+COPY react-src/ .
+
+EXPOSE 4200
+CMD [ "npm", "start"]

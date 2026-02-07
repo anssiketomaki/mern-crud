@@ -1,31 +1,40 @@
-version: '2'
 services:
   db:
-    image: mongo:latest
+    image: mongo:7-alpine
+    networks:
+      - mern-network
+
   api:
-    build: .
-    image: mern-crud
-    command: nodemon server
+    build:
+        context: .
+        dockerfile: Dockerfile.api
     ports:
       - "3000:3000"
     environment:
-      - "DB=mongodb://db/mern-crud"
-      - "CORS=1"
-      - "DEBUG=express:*"
+      - DB=mongodb://db/mern-crud
+      - REQUEST_ORIGIN=http://localhost:4200
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - /usr/src/app/react-src
+    networks:
+      - mern-network
     depends_on:
       - db
   web:
-    image: mern-crud
-    command: npm start --prefix react-src
+    build:
+        context: .
+        dockerfile: Dockerfile.web
     ports:
       - "4200:4200"
-    environment:
-      - "REACT_APP_API_URL=http://localhost:3000"
     volumes:
       - ./react-src:/usr/src/app/react-src
       - /usr/src/app/react-src/node_modules
+    networks:
+      - mern-network
     depends_on:
       - api
+
+networks:
+  mern-network:
+      name: database-network
